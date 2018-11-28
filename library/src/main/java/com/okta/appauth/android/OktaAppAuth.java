@@ -495,6 +495,11 @@ public class OktaAppAuth {
             authRequestBuilder.setLoginHint(loginHint);
         }
 
+        String state = mConfiguration.getStateParameter();
+        if (!TextUtils.isEmpty(state)) {
+            authRequestBuilder.setState(state);
+        }
+
         mAuthRequest.set(authRequestBuilder.build());
     }
 

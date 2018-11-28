@@ -6,5 +6,6 @@
     "profile",
     "offline_access"
   ],
-  "issuer_uri": "{your-okta-org-uri-here}"
+  "issuer_uri": "{your-okta-org-uri-here}",
+  "state": ""
 }

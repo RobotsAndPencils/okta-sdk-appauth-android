@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -84,6 +87,7 @@ public class OAuthClientConfiguration {
     private Uri mRedirectUri;
     private Uri mDiscoveryUri;
     private Set<String> mScopes;
+    private String mStateParameter;
 
     /**
      * <p>
@@ -197,6 +201,7 @@ public class OAuthClientConfiguration {
 
         mClientId = jsonParser.getRequiredString("client_id");
         mRedirectUri = jsonParser.getRequiredUri("redirect_uri");
+        mStateParameter =  jsonParser.getOptionalString("state");
 
         if (!isRedirectUriRegistered()) {
             throw new InvalidJsonDocumentException(
@@ -288,5 +293,44 @@ public class OAuthClientConfiguration {
     public Set<String> getScopes() {
         return mScopes;
     }
+
+    /**
+     * Returns the state parameter defined by the configuration. It is recommended that the default
+     * implementation of this parameter be used wherever possible.
+     * @return
+     */
+    @Nullable
+    public String getStateParameter() {
+        if (TextUtils.isEmpty(mStateParameter)) {
+            return null;
+        } else {
+            // append
+             return generateRandomState().concat(mStateParameter);
+
+            // as is
+            // return mStateParameter
+
+            // base64'd
+            // return generateEncodedState(mStateParameter);
+        }
+    }
+
+    private static String generateRandomState() {
+        SecureRandom sr = new SecureRandom();
+        byte[] random = new byte[16];
+        sr.nextBytes(random);
+        return Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+    }
+
+    private static String generateEncodedState(String mixin) {
+        SecureRandom sr = new SecureRandom();
+        byte[] random = new byte[16];
+        sr.nextBytes(random);
+        byte[] combined = new byte[random.length + mixin.length()];
+        System.arraycopy(random, 0, combined, 0, random.length);
+        System.arraycopy(mixin.getBytes(), 0, combined, random.length, mixin.length());
+        return Base64.encodeToString(combined, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+    }
+
 
 }

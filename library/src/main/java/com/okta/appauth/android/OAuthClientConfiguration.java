@@ -85,6 +85,7 @@ public class OAuthClientConfiguration {
     private Uri mEndSessionRedirectUri;
     private Uri mDiscoveryUri;
     private Set<String> mScopes;
+    private String mStateParameter;
 
     /**
      * <p>
@@ -201,6 +202,7 @@ public class OAuthClientConfiguration {
         mClientId = jsonParser.getRequiredString("client_id");
         mRedirectUri = jsonParser.getRequiredUri("redirect_uri");
         mEndSessionRedirectUri = jsonParser.getRequiredUri("end_session_redirect_uri");
+        mStateParameter =  jsonParser.getOptionalString("state");
 
         if (!isRedirectUrisRegistered()) {
             throw new InvalidJsonDocumentException(
@@ -306,4 +308,13 @@ public class OAuthClientConfiguration {
         return mScopes;
     }
 
+    /**
+     * Returns the state parameter defined by the configuration. It is recommended that the default
+     * implementation of this parameter be used wherever possible.
+     * @return the state when defined by the configuration
+     */
+    @Nullable
+    public String getStateParameter() {
+        return mStateParameter;
+    }
 }

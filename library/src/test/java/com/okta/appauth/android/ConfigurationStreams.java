@@ -41,6 +41,22 @@ public class ConfigurationStreams {
         return new ByteArrayInputStream(EXAMPLE_JSON_CONFIG.getBytes());
     }
 
+    public static final String STATE_JSON_CONFIG =
+            "{" +
+            "  \"client_id\": \"example_client_id\"," +
+            "  \"redirect_uri\": \"com.okta.appauth.android.test:/oauth2redirect\"," +
+            "  \"scopes\": [" +
+            "    \"openid\"," +
+            "    \"foo\"" +
+            "  ]," +
+            "  \"issuer_uri\": \"https://example.com/issuer\"," +
+            "  \"state\": \"&isSuperUser=false\"" +
+            "}";
+
+    public static InputStream getStateConfiguration() {
+        return new ByteArrayInputStream(STATE_JSON_CONFIG.getBytes());
+    }
+
     public static final String OTHER_JSON_CONFIG =
             "{" +
                     "  \"client_id\": \"other_client_id\"," +

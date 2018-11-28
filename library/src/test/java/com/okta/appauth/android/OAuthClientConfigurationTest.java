@@ -149,4 +149,26 @@ public class OAuthClientConfigurationTest {
     public void testGetScopes() {
         assertThat(sut.getScopes()).contains("openid", "foo");
     }
+
+    @Test
+    public void testGetStateComesFromConfig() {
+        sut = new OAuthClientConfiguration(
+                mContext,
+                mPrefs,
+                ConfigurationStreams.getStateConfiguration()
+        );
+        assertThat(sut.isValid()).isTrue();
+        assertThat(sut.getStateParameter()).isEqualTo("&isSuperUser=false");
+    }
+
+    @Test
+    public void testGetStateIsOptional() {
+        sut = new OAuthClientConfiguration(
+                mContext,
+                mPrefs,
+                ConfigurationStreams.getExampleConfiguration()
+        );
+        assertThat(sut.isValid()).isTrue();
+        assertThat(sut.getStateParameter()).isNull();
+    }
 }

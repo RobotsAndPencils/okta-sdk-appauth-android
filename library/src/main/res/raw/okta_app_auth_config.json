@@ -4,5 +4,6 @@
   "end_session_redirect_uri": "",
   "scopes": [
   ],
-  "issuer_uri": ""
+  "issuer_uri": "",
+  "state": ""
 }

@@ -31,11 +31,11 @@
         <activity
                 android:name=".LoginActivity"
                 android:label="@string/app_name_short"
-                android:launchMode="singleInstance"
                 android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <data android:scheme="${appAuthRedirectScheme}"/>
             </intent-filter>
         </activity>
 
@@ -43,6 +43,12 @@
                   android:label="@string/app_name_short"
                   android:windowSoftInputMode="stateHidden"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+        <!-- AppAuth Activities -->
+
+        <activity android:name="net.openid.appauth.AuthorizationManagementActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
 
     </application>
 

@@ -106,6 +106,11 @@ public class LoginActivity extends AppCompatActivity {
                     public void onTokenFailure(@NonNull AuthorizationException ex) {
                         runOnUiThread(() -> showSnackbar(getString(R.string.init_failure)));
                     }
+
+                    @Override
+                    public void onError(Exception ex) {
+                        runOnUiThread(() -> showSnackbar(ex.getMessage()));
+                    }
                 },
                 getColorCompat(R.color.colorPrimary));
     }
@@ -119,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
         displayLoading(getString(R.string.loading_authorizing));
 
         Intent completionIntent = new Intent(this, UserInfoActivity.class);
+        completionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         Intent cancelIntent = new Intent(this, LoginActivity.class);
         cancelIntent.putExtra(EXTRA_FAILED, true);
         cancelIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

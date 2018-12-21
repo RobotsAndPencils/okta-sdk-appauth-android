@@ -119,6 +119,11 @@ public class UserInfoActivity extends AppCompatActivity {
             public void onTokenFailure(@NonNull AuthorizationException ex) {
                 runOnUiThread(() -> showSnackbar(getString(R.string.token_failure_message)));
             }
+
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> showSnackbar(ex.getMessage()));
+            }
         });
     }
 

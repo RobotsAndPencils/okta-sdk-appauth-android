@@ -460,40 +460,47 @@ public class OktaAppAuth {
 
     @WorkerThread
     private void doInit(final Context context, final OktaAuthListener listener) {
-        mInitializationListener.set(listener);
-        recreateAuthorizationService(context);
+        try {
+            mInitializationListener.set(listener);
+            recreateAuthorizationService(context);
 
-        if (mConfiguration.hasConfigurationChanged()) {
-            // discard any existing authorization state due to the change of configuration
-            Log.i(TAG, "Configuration change detected, discarding old state");
-            mAuthStateManager.replace(new AuthState());
+            if (mConfiguration.hasConfigurationChanged()) {
+                // discard any existing authorization state due to the change of configuration
+                Log.i(TAG, "Configuration change detected, discarding old state");
+                mAuthStateManager.replace(new AuthState());
+                mConfiguration.acceptConfiguration();
+            }
+
             if (!mConfiguration.isValid()) {
                 Log.e(TAG, "Configuration was invalid: " + mConfiguration.getConfigurationError());
                 listener.onTokenFailure(
                         AuthorizationException.GeneralErrors.INVALID_DISCOVERY_DOCUMENT);
+                return;
             }
-            mConfiguration.acceptConfiguration();
-        }
 
-        if (mAuthStateManager.getCurrent().getAuthorizationServiceConfiguration() != null) {
-            // configuration is already created, skip to client initialization
-            Log.i(TAG, "auth config already established");
-            initializeClient();
-            return;
-        }
+            if (mAuthStateManager.getCurrent().getAuthorizationServiceConfiguration() != null) {
+                // configuration is already created, skip to client initialization
+                Log.i(TAG, "auth config already established");
+                initializeClient();
+                return;
+            }
 
-        Log.i(TAG, "Retrieving OpenID discovery doc");
-        AuthorizationServiceConfiguration.fetchFromUrl(
-                mConfiguration.getDiscoveryUri(),
-                new AuthorizationServiceConfiguration.RetrieveConfigurationCallback() {
-                    @Override
-                    public void onFetchConfigurationCompleted(
-                            @Nullable AuthorizationServiceConfiguration serviceConfiguration,
-                            @Nullable AuthorizationException ex) {
-                        handleConfigurationRetrievalResult(serviceConfiguration, ex);
-                    }
-                },
-                DefaultConnectionBuilder.INSTANCE);
+            Log.i(TAG, "Retrieving OpenID discovery doc");
+                AuthorizationServiceConfiguration.fetchFromUrl(
+                    mConfiguration.getDiscoveryUri(),
+                    new AuthorizationServiceConfiguration.RetrieveConfigurationCallback() {
+                        @Override
+                        public void onFetchConfigurationCompleted(
+                                @Nullable AuthorizationServiceConfiguration serviceConfiguration,
+                                @Nullable AuthorizationException ex) {
+                            handleConfigurationRetrievalResult(serviceConfiguration, ex);
+                        }
+                    },
+                    DefaultConnectionBuilder.INSTANCE);
+        } catch (Exception e) {
+            Log.e(TAG, "Fetch from URL failed. %s", e);
+            listener.onError(e);
+        }
     }
 
     /*
@@ -594,13 +601,17 @@ public class OktaAppAuth {
     @WorkerThread
     private void doAuth(PendingIntent completionIntent, PendingIntent cancelIntent) {
         Log.d(TAG, "Starting authorization flow");
-        AuthorizationRequest request = mAuthRequest.get();
-        warmUpBrowser(request.toUri());
-        createAuthorizationServiceIfNeeded().performAuthorizationRequest(
-                request,
-                completionIntent,
-                cancelIntent,
-                mAuthIntent.get());
+        try {
+            AuthorizationRequest request = mAuthRequest.get();
+            warmUpBrowser(request.toUri());
+            createAuthorizationServiceIfNeeded().performAuthorizationRequest(
+                    request,
+                    completionIntent,
+                    cancelIntent,
+                    mAuthIntent.get());
+        } catch (Exception e) {
+            Log.e(TAG, "DoAuth failed, ", e);
+        }
     }
 
     private void doEndSession(PendingIntent completionIntent, PendingIntent cancelIntent) {
@@ -698,6 +709,13 @@ public class OktaAppAuth {
          * @param ex The exception describing the failure
          */
         void onTokenFailure(@NonNull AuthorizationException ex);
+
+        /**
+         * Called when a failure occurs.
+         *
+         * @param ex The exception describing the failure
+         */
+        void onError(Exception ex);
     }
 
     /**

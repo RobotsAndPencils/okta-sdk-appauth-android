@@ -26,6 +26,7 @@ import android.util.Log;
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationResponse;
+import net.openid.appauth.RegistrationResponse;
 import net.openid.appauth.TokenResponse;
 import org.json.JSONException;
 
@@ -133,6 +134,20 @@ public class AuthStateManager {
             @Nullable AuthorizationException ex) {
         AuthState current = getCurrent();
         current.update(response, ex);
+        return replace(current);
+    }
+
+    @AnyThread
+    @NonNull
+    public AuthState updateAfterRegistration(
+            RegistrationResponse response,
+            AuthorizationException ex) {
+        AuthState current = getCurrent();
+        if (ex != null) {
+            return current;
+        }
+
+        current.update(response);
         return replace(current);
     }
 

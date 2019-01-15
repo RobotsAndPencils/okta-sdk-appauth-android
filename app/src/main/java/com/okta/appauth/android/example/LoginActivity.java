@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
         displayLoading(getString(R.string.loading_authorizing));
 
         Intent completionIntent = new Intent(this, UserInfoActivity.class);
-        completionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        completionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         Intent cancelIntent = new Intent(this, LoginActivity.class);
         cancelIntent.putExtra(EXTRA_FAILED, true);
         cancelIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
